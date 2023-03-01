@@ -41,8 +41,13 @@ extern "C" {
 #define NO_ERROR 0
 #define NOT_IMPLEMENTED_ERROR 31
 
+/* See https://docs.zephyrproject.org/latest/contribute/coding_guidelines/index.html#rule-a-3-macro-name-collisions */
+#ifdef __ZEPHYR__
+#include <zephyr/sys/util.h>
+#else
 #ifndef ARRAY_SIZE
 #define ARRAY_SIZE(x) (sizeof(x) / sizeof(*(x)))
+#endif
 #endif
 
 #define SENSIRION_COMMAND_SIZE 2

@@ -30,47 +30,37 @@
  */
 
 #include "sensirion_i2c_hal.h"
+
+#include <zephyr/zephyr.h>
+#include <zephyr/device.h>
+#include <zephyr/drivers/i2c.h>
+
 #include "sensirion_common.h"
 #include "sensirion_config.h"
 
-/*
- * INSTRUCTIONS
- * ============
- *
- * Implement all functions where they are marked as IMPLEMENT.
- * Follow the function specification in the comments.
- */
+/* I2C device. */
+#define CLICK_I2C DT_ALIAS(click_i2c)
 
-/**
- * Select the current i2c bus by index.
- * All following i2c operations will be directed at that bus.
- *
- * THE IMPLEMENTATION IS OPTIONAL ON SINGLE-BUS SETUPS (all sensors on the same
- * bus)
- *
- * @param bus_idx   Bus index to select
- * @returns         0 on success, an error code otherwise
- */
-int16_t sensirion_i2c_hal_select_bus(uint8_t bus_idx) {
-    /* TODO:IMPLEMENT or leave empty if all sensors are located on one single
-     * bus
-     */
-    return NOT_IMPLEMENTED_ERROR;
-}
+#if DT_NODE_HAS_STATUS(CLICK_I2C, okay)
+static const struct device *i2c_dev = DEVICE_DT_GET(CLICK_I2C);
+#else
+#error "click_i2c is disabled"
+#endif
 
 /**
  * Initialize all hard- and software components that are needed for the I2C
  * communication.
  */
 void sensirion_i2c_hal_init(void) {
-    /* TODO:IMPLEMENT */
+    /* Device (specified by click_i2c) is already initialized by the Zephyr
+     * boot-up process. Nothing to be done here. */
 }
 
 /**
  * Release all resources initialized by sensirion_i2c_hal_init().
  */
 void sensirion_i2c_hal_free(void) {
-    /* TODO:IMPLEMENT or leave empty if no resources need to be freed */
+    i2c_dev = NULL;
 }
 
 /**
@@ -84,8 +74,7 @@ void sensirion_i2c_hal_free(void) {
  * @returns 0 on success, error code otherwise
  */
 int8_t sensirion_i2c_hal_read(uint8_t address, uint8_t* data, uint16_t count) {
-    /* TODO:IMPLEMENT */
-    return NOT_IMPLEMENTED_ERROR;
+    return i2c_read(i2c_dev, data, count, address);
 }
 
 /**
@@ -101,8 +90,7 @@ int8_t sensirion_i2c_hal_read(uint8_t address, uint8_t* data, uint16_t count) {
  */
 int8_t sensirion_i2c_hal_write(uint8_t address, const uint8_t* data,
                                uint16_t count) {
-    /* TODO:IMPLEMENT */
-    return NOT_IMPLEMENTED_ERROR;
+    return i2c_write(i2c_dev, data, count, address);
 }
 
 /**
@@ -114,5 +102,8 @@ int8_t sensirion_i2c_hal_write(uint8_t address, const uint8_t* data,
  * @param useconds the sleep time in microseconds
  */
 void sensirion_i2c_hal_sleep_usec(uint32_t useconds) {
-    /* TODO:IMPLEMENT */
+    int32_t remaining = useconds;
+    while (remaining > 0) {
+        remaining = k_usleep(remaining);
+    }
 }
