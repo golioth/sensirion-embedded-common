@@ -38,13 +38,21 @@
 #include "sensirion_common.h"
 #include "sensirion_config.h"
 
-/* I2C device. */
-#define CLICK_I2C DT_ALIAS(click_i2c)
+/*
+ * Apps using this library need to add a devicetree alias like the following:
+ *
+ * / {
+ *         aliases {
+ *                 sensirion-hal-i2c = &device_i2c_node;
+ *         };
+ * };
+ */
+#define I2C_DEV DT_ALIAS(sensirion_hal_i2c)
 
-#if DT_NODE_HAS_STATUS(CLICK_I2C, okay)
-static const struct device *i2c_dev = DEVICE_DT_GET(CLICK_I2C);
+#if DT_NODE_HAS_STATUS(I2C_DEV, okay)
+static const struct device *i2c_dev = DEVICE_DT_GET(I2C_DEV);
 #else
-#error "click_i2c is disabled"
+#error "sensirion-hal-i2c device is disabled"
 #endif
 
 /**
